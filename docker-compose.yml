@@ -12,12 +12,42 @@ services:
       - "5432:5432"
     volumes:
       - ./db:/var/lib/postgresql/data
-  spark:
-    build: .
-    ports:
-      - "8888:8888"
-      - "4040:4040"
-    volumes:
-      - .:/home/jovyan/work
+    networks:
+      - backend
+
+  spark-master:
+    image: bde2020/spark-master:3.1.2-hadoop3.2
+    command: /spark/bin/spark-class org.apache.spark.deploy.master.Master -h spark-master
+    container_name: spark-master
     depends_on:
       - db
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+    environment:
+      SPARK_CONF_DIR: /spark/conf
+      SPARK_PUBLIC_DNS: spark-master
+    volumes:
+      - ./spark-master:/app
+    networks:
+      - backend
+
+  spark-worker:
+    image: bde2020/spark-worker:3.1.2-hadoop3.2
+    command: /spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    container_name: spark-worker
+    depends_on:
+      - spark-master
+      - db
+    ports:
+      - "8081:8081"
+    environment:
+      SPARK_CONF_DIR: /spark/conf
+    volumes:
+      - ./spark-worker:/app
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
