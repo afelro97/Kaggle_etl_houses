@@ -1,6 +1,7 @@
 version: '3'
 services:
   db:
+    container_name: postgres_container
     image: postgres
     restart: always
     environment:
@@ -10,11 +11,12 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./data:/var/lib/postgresql/data
+      - ./db:/var/lib/postgresql/data
   spark:
     build: .
     ports:
       - "8888:8888"
+      - "4040:4040"
     volumes:
       - .:/home/jovyan/work
     depends_on:

@@ -24,7 +24,8 @@ COPY scripts/etl.py /home/jovyan/work/etl.py
 RUN pip install pandas
 
 # Ejecutar el proceso de ETL
-RUN python /home/jovyan/work/etl.py
+#RUN python /home/jovyan/work/etl.py
+RUN /usr/local/spark/bin/spark-submit /home/jovyan/work/etl.py
 
 # Cambiar permisos del directorio de trabajo y archivos de entrada/salida
 RUN chown -R 1000:1000 /home/jovyan/work
